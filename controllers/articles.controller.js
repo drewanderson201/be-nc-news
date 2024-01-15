@@ -1,6 +1,9 @@
 
 
-const {retrieveArticleById} = require("../models/articles.model")
+const {
+  retrieveArticleById,
+  retreiveAllArticles,
+} = require("../models/articles.model");
 
 exports.getArticleById = (req, res, next) => {
 
@@ -12,6 +15,20 @@ exports.getArticleById = (req, res, next) => {
 
     }).catch((err)=>{
         next(err)
+    })
+
+};
+
+exports.getArticles = (req, res, next) => {
+
+    retreiveAllArticles().then((articles)=>{
+
+        console.log({ articles });
+
+        res.status(200).send({ articles });
+
+
+
     })
 
 };

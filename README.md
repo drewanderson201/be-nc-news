@@ -5,3 +5,4 @@ You will need to create two .env files for your project: .env.test and .env.deve
 Installed
 Supertest
 Express
+Jest Sorted
