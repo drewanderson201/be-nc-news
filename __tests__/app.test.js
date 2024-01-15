@@ -85,16 +85,79 @@ describe("/api", () => {
         });
     });
 
-        test("GET 400: sends an appropriate status and error message when given an invalid id", () => {
-          return request(app)
-            .get("/api/articles/nonsense")
-            .expect(400)
-            .then((response) => {
-              expect(response.body.msg).toBe("Bad request");
-            });
+    test("GET 400: sends an appropriate status and error message when given an invalid id", () => {
+      return request(app)
+        .get("/api/articles/nonsense")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
         });
+    });
+  });
 
+  describe("GET /articles", () => {
+    test("GET 200: sends an array of article objects with following properties: author,title, article_id,topic, created_at, votes, article_img_url. Not including a body property ", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBe(data.articleData.length);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(article.body).toBe(undefined)
+          });
+        });
+    });
 
+    test("GET 200: sends an array of article objects including a comment count property", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          
+          const articleOne = articles.find((article) => 
+            article.article_id === 1
+          );
+          const articleTwo = articles.find(
+            (article) => article.article_id === 2
+          );
+          const articleThree = articles.find(
+            (article) => article.article_id === 3
+          );
+        const articleOneCommentCount = articleOne.comment_count;
+        const articleTwoCommentCount = articleTwo.comment_count;
+        const articleThreeCommentCount = articleThree.comment_count;
+
+          expect(articleOneCommentCount).toBe(11);
+          expect(articleTwoCommentCount).toBe(0);
+          expect(articleThreeCommentCount).toBe(2);
+          articles.forEach((article) => {
+            expect(typeof article.comment_count).toBe("number");
+          });
+        });
+    });
+
+    test("GET 200: should be sorted in date descending order by default",()=>{
+
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const {articles} = body
+            expect(articles).toBeSortedBy("created_at", {descending: true});
+          });
+
+    })
+
+    
 
   });
 });
