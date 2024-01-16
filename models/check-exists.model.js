@@ -4,9 +4,10 @@ const format = require('pg-format')
 exports.checkExistsInDb = (table, column, value) => {
 
     const lookup = {
-        articles: "article",
-        users: "user"
-    }
+      articles: "article",
+      users: "user",
+      comments: "comment",
+    };
 
 
     const queryString = format('SELECT * FROM %I WHERE %I = $1', table, column)

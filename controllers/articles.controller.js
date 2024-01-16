@@ -44,13 +44,6 @@ exports.patchArticle = (req, res, next) => {
       "article_id",
       articleId
     );
-  
-
-    // updateArticle(articleUpdates, articleId).then((result) => {
-    //     console.log("result in controller >>> ", result)
-    // });
-
-
 
   const updateArticleQuery = updateArticle(articleUpdates, articleId);
 
