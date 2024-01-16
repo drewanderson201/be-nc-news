@@ -7,9 +7,8 @@ exports.getTopics = (req, res, next) => {
 
 
         res.status(200).send({topics})
+    }).catch((err)=>{
+        next(err)
     })
 }
 
-exports.invalidEndpoint = (req, res, next) => {
-    res.status(404).send({ msg: "Not Found - Invalid Endpoint" });
-};

@@ -23,8 +23,6 @@ exports.getArticles = (req, res, next) => {
 
     retreiveAllArticles().then((articles)=>{
 
-        console.log({ articles });
-
         res.status(200).send({ articles });
 
 
