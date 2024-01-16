@@ -27,6 +27,8 @@ const {
   handleInvalidEndpoint,
 } = require("./errors");
 
+const {getUsers} = require("./controllers/users.controller")
+
 app.get("/api", getEndpoints);
 
 app.get("/api/topics", getTopics);
@@ -42,6 +44,9 @@ app.post("/api/articles/:article_id/comments", postComment)
 app.patch("/api/articles/:article_id", patchArticle);
 
 app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api/users", getUsers);
+
 
 
 
