@@ -28,3 +28,18 @@ exports.retreiveAllArticles = () => {
       });
 
 }
+
+exports.updateArticle = (articleUpdates, articleId) => {
+  return db
+    .query(
+      `
+  UPDATE articles
+  SET votes = GREATEST(0,votes + $1)
+  WHERE article_id = $2
+  RETURNING *`,
+      [articleUpdates.inc_votes, articleId]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

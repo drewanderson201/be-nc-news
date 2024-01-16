@@ -3,7 +3,10 @@
 const {
   retrieveArticleById,
   retreiveAllArticles,
+  updateArticle
 } = require("../models/articles.model");
+
+const {checkExistsInDb} = require("../models/check-exists.model")
 
 exports.getArticleById = (req, res, next) => {
 
@@ -29,4 +32,35 @@ exports.getArticles = (req, res, next) => {
 
     })
 
+};
+
+exports.patchArticle = (req, res, next) => {
+
+  const articleId = req.params.article_id;
+  const articleUpdates = req.body;
+
+    const articleExistenceQuery = checkExistsInDb(
+      "articles",
+      "article_id",
+      articleId
+    );
+  
+
+    // updateArticle(articleUpdates, articleId).then((result) => {
+    //     console.log("result in controller >>> ", result)
+    // });
+
+
+
+  const updateArticleQuery = updateArticle(articleUpdates, articleId);
+
+  Promise.all([updateArticleQuery, articleExistenceQuery])
+    .then((response) => {
+      const article = response[0];
+
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
