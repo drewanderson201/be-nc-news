@@ -258,47 +258,141 @@ describe("/api", () => {
         });
     });
 
+    test("POST 404: will respond with error message if request has username that doesn't exist", () => {
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send({
+          username: "nonsense",
+          body: "new test comment",
+        })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Resource not found");
+        });
+    });
 
-        test("POST 404: will respond with error message if request has username that doesn't exist", () => {
+    test("POST 400: will respond with error message if given and invalid article id", () => {
+      return request(app)
+        .post("/api/articles/nonsense/comments")
+        .send({
+          username: "rogersop",
+          body: "new test comment",
+        })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 404: will respond with error message if given a valid but non existent article id", () => {
+      return request(app)
+        .post("/api/articles/100/comments")
+        .send({
+          username: "rogersop",
+          body: "new test comment",
+        })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("article does not exist");
+        });
+    });
+  });
+
+  describe("PATCH /api/articles/:article_id", () => {
+    test("PATCH 200: Updates the article vote count based on article id and positive increment value", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 101,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("PATCH 200: Updates the article vote count based on article id and negative increment value", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -1 })
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 99,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("PATCH 200: Will return article with vote count of zero if decrement value is greater than current article vote count", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -101 })
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+
+    test("PATCH 400: will respond with error message if vote update value is wrong data type", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "nonsense" })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("PATCH 400: will respond with error message if given an invalid article id", () => {
+      return request(app)
+        .patch("/api/articles/nonsense")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+        test("PATCH 404: will respond with error message if given a valid but non existent article id", () => {
           return request(app)
-            .post("/api/articles/2/comments")
-            .send({
-              username: "nonsense",
-              body: "new test comment",
-            })
+            .patch("/api/articles/100")
+            .send({ inc_votes: 1 })
             .expect(404)
             .then((response) => {
-              expect(response.body.msg).toBe("Resource not found");
+              expect(response.body.msg).toBe("article does not exist");
             });
         });
-
-
-        test("POST 400: will respond with error message if given and invalid article id", () => {
-          return request(app)
-            .post("/api/articles/nonsense/comments")
-            .send({
-              username: "rogersop",
-              body: "new test comment",
-            })
-            .expect(400)
-            .then((response) => {
-              expect(response.body.msg).toBe("Bad request");
-            });
-        });
-
-                test("POST 404: will respond with error message if given a valid but non existent article id", () => {
-                  return request(app)
-                    .post("/api/articles/100/comments")
-                    .send({
-                      username: "rogersop",
-                      body: "new test comment",
-                    })
-                    .expect(404)
-                    .then((response) => {
-                      expect(response.body.msg).toBe("article does not exist");
-                    });
-                });
 
 
   });
 });
+

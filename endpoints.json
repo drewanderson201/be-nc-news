@@ -16,7 +16,7 @@
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
-    "requestFormat":{},
+    "requestFormat": {},
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
@@ -61,33 +61,55 @@
     "requestFormat": {},
     "exampleResponse": {
       "comments": [
-      {
-        "comment_id": 5,
-        "body": "I hate streaming noses",
-        "article_id": 1,
-        "author": "icellusedkars",
-        "votes": 0,
-        "created_at": "2020-11-03T21:00:00.000Z"
-      }]
+        {
+          "comment_id": 5,
+          "body": "I hate streaming noses",
+          "article_id": 1,
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2020-11-03T21:00:00.000Z"
+        }
+      ]
     }
   },
 
-    "POST /api/articles/:article_id/comments": {
+  "POST /api/articles/:article_id/comments": {
     "description": "adds a new comment based on an article id",
     "queries": [],
-    "requestFormat": { "username": "rogersop", "body":"Posting a brand new comment for testing" },
+    "requestFormat": {
+      "username": "rogersop",
+      "body": "Posting a brand new comment for testing"
+    },
     "exampleResponse": {
       "comments": {
-      "comment": {
-        "comment_id": 19,
-        "body": "Posting a brand new comment for testing",
-        "article_id": 2,
-        "author": "rogersop",
-        "votes": 0,
-        "created_at": "2024-01-16T12:20:32.906Z"
+        "comment": {
+          "comment_id": 19,
+          "body": "Posting a brand new comment for testing",
+          "article_id": 2,
+          "author": "rogersop",
+          "votes": 0,
+          "created_at": "2024-01-16T12:20:32.906Z"
+        }
       }
     }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates an article based on article id",
+    "queries": [],
+    "requestFormat": {
+      "inc_votes": 1
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": " 2020-07-09T20:11:00.000Z",
+        "votes": 101,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
     }
   }
-
 }
