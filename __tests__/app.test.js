@@ -419,4 +419,21 @@ describe("/api", () => {
 
 
   });
+
+  describe("GET /api/users", () => {
+    test("GET 200: sends an array of users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(users.length).toBe(data.userData.length);
+          users.forEach((user) => {
+            expect(typeof user.username).toBe("string");
+            expect(typeof user.name).toBe("string");
+            expect(typeof user.avatar_url).toBe("string");
+          });
+        });
+    });
+  });
 });
