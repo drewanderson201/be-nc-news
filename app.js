@@ -1,5 +1,6 @@
 const express = require("express")
 const app = express();
+app.use(express.json());
 const {
   getTopics
 } = require("./controllers/topics.controller");
@@ -13,7 +14,10 @@ const {
   getEndpoints,
 } = require("./controllers/api.controller");
 
-const {getCommentsByArticleId} = require("./controllers/comments.controller");
+const {
+  getCommentsByArticleId,
+  postComment,
+} = require("./controllers/comments.controller");
 const {
   handleCustomErrors,
   handlePsqlErrors,
@@ -30,6 +34,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+
+app.post("/api/articles/:article_id/comments", postComment)
 
 
 //should come after all other endpoints

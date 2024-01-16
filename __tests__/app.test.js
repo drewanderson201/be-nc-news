@@ -33,7 +33,7 @@ describe("/api", () => {
           for (const endpoint in body) {
             expect(typeof body[endpoint].description).toBe("string");
             expect(Array.isArray(body[endpoint].queries)).toBe(true);
-            expect(typeof body[endpoint].requestFormat).toBe("string");
+            expect(typeof body[endpoint].requestFormat).toBe("object");
             expect(typeof body[endpoint].exampleResponse).toBe("object");
           }
         });
@@ -111,7 +111,7 @@ describe("/api", () => {
             expect(typeof article.created_at).toBe("string");
             expect(typeof article.votes).toBe("number");
             expect(typeof article.article_img_url).toBe("string");
-            expect(article.body).toBe(undefined)
+            expect(article.body).toBe(undefined);
           });
         });
     });
@@ -122,9 +122,9 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           const { articles } = body;
-        expect(articles.length).toBe(data.articleData.length);
-          const articleOne = articles.find((article) => 
-            article.article_id === 1
+          expect(articles.length).toBe(data.articleData.length);
+          const articleOne = articles.find(
+            (article) => article.article_id === 1
           );
           const articleTwo = articles.find(
             (article) => article.article_id === 2
@@ -132,9 +132,9 @@ describe("/api", () => {
           const articleThree = articles.find(
             (article) => article.article_id === 3
           );
-        const articleOneCommentCount = articleOne.comment_count;
-        const articleTwoCommentCount = articleTwo.comment_count;
-        const articleThreeCommentCount = articleThree.comment_count;
+          const articleOneCommentCount = articleOne.comment_count;
+          const articleTwoCommentCount = articleTwo.comment_count;
+          const articleThreeCommentCount = articleThree.comment_count;
 
           expect(articleOneCommentCount).toBe(11);
           expect(articleTwoCommentCount).toBe(0);
@@ -145,69 +145,160 @@ describe("/api", () => {
         });
     });
 
-    test("GET 200: should be sorted in date descending order by default",()=>{
-
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(({ body }) => {
-            const {articles} = body
-            expect(articles).toBeSortedBy("created_at", {descending: true});
-          });
-
-    })
-
-    
-
+    test("GET 200: should be sorted in date descending order by default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
+    });
   });
 
-  describe("GET /articles/:article_id/comments", ()=>{
-
+  describe("GET /articles/:article_id/comments", () => {
     test("GET 200: sends an array of comments based on article_id", () => {
-         return request(app).get("/api/articles/1/comments").expect(200).then(({body})=>{
-            const {comments} = body;
-            expect(comments.length).toBe(11)
-            comments.forEach((comment)=>{
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments.length).toBe(11);
+          comments.forEach((comment) => {
             expect(typeof comment.comment_id).toBe("number");
             expect(typeof comment.body).toBe("string");
             expect(typeof comment.created_at).toBe("string");
             expect(typeof comment.author).toBe("string");
             expect(typeof comment.body).toBe("string");
             expect(typeof comment.article_id).toBe("number");
-            })
-         })
+          });
+        });
     });
 
-        test("GET 200: comments are default sorted by date in decending order", () => {
-          return request(app)
-            .get("/api/articles/1/comments")
-            .expect(200)
-            .then(({ body }) => {
-              const { comments } = body;
-            expect(comments).toBeSortedBy("created_at", {
-                            descending: true,
-                          });
-            });
+    test("GET 200: comments are default sorted by date in decending order", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
         });
+    });
 
-        test("GET 404: sends an appropriate status and error message when given a valid but non existent id", () => {
+    test("GET 404: sends an appropriate status and error message when given a valid but non existent id", () => {
+      return request(app)
+        .get("/api/articles/1000/comments")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("article does not exist");
+        });
+    });
+
+    test("GET 400: sends an appropriate status and error message when given an invalid article id", () => {
+      return request(app)
+        .get("/api/articles/nonsense/comments")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("GET 200: sends an empty array when given a article id with no comments ", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(comments).toEqual([]);
+        });
+    });
+  });
+
+  describe("POST /articles/:article_id/comments", () => {
+    test("POST 201: adds a new comment for an article", () => {
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send({
+          username: "rogersop",
+          body: "Posting a brand new comment for testing",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const comment = body.comment;
+          expect(comment.comment_id).toBe(19);
+          expect(comment.body).toBe("Posting a brand new comment for testing");
+          expect(comment.article_id).toBe(2);
+          expect(comment.author).toBe("rogersop");
+          expect(comment.votes).toBe(0);
+          expect(typeof comment.created_at).toBe("string");
+        });
+    });
+
+    test("POST 400: will respond with error message if body is missing mandatory keys", () => {
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send({
+          body: "Posting a brand new comment for testing",
+        })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 400: will respond with error message if no body is sent in request", () => {
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send()
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+
+        test("POST 404: will respond with error message if request has username that doesn't exist", () => {
           return request(app)
-            .get("/api/articles/1000/comments")
+            .post("/api/articles/2/comments")
+            .send({
+              username: "nonsense",
+              body: "new test comment",
+            })
             .expect(404)
             .then((response) => {
-              expect(response.body.msg).toBe("article does not exist");
+              expect(response.body.msg).toBe("Resource not found");
             });
         });
 
-        test("GET 400: sends an appropriate status and error message when given an invalid id", () => {
+
+        test("POST 400: will respond with error message if given and invalid article id", () => {
           return request(app)
-            .get("/api/articles/nonsense/comments")
+            .post("/api/articles/nonsense/comments")
+            .send({
+              username: "rogersop",
+              body: "new test comment",
+            })
             .expect(400)
             .then((response) => {
               expect(response.body.msg).toBe("Bad request");
             });
         });
 
-  })
+                test("POST 404: will respond with error message if given a valid but non existent article id", () => {
+                  return request(app)
+                    .post("/api/articles/100/comments")
+                    .send({
+                      username: "rogersop",
+                      body: "new test comment",
+                    })
+                    .expect(404)
+                    .then((response) => {
+                      expect(response.body.msg).toBe("article does not exist");
+                    });
+                });
 
+
+  });
 });
