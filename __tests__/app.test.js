@@ -382,17 +382,41 @@ describe("/api", () => {
         });
     });
 
-        test("PATCH 404: will respond with error message if given a valid but non existent article id", () => {
+    test("PATCH 404: will respond with error message if given a valid but non existent article id", () => {
+      return request(app)
+        .patch("/api/articles/100")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("article does not exist");
+        });
+    });
+  });
+
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("DELETE 204: Removes a comment based on comment id and responds with correct status code", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+
+
+    test("DELETE 400: will respond with error message if given an invalid comment id", () => {
+      return request(app)
+        .delete("/api/comments/nonsense")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+        test("DELETE 404: will respond with error message if given a valid but non existent comment id", () => {
           return request(app)
-            .patch("/api/articles/100")
-            .send({ inc_votes: 1 })
+            .delete("/api/comments/100")
             .expect(404)
             .then((response) => {
-              expect(response.body.msg).toBe("article does not exist");
+              expect(response.body.msg).toBe("comment does not exist");
             });
         });
 
 
   });
 });
-
