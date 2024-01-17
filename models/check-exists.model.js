@@ -7,6 +7,7 @@ exports.checkExistsInDb = (table, column, value) => {
       articles: "article",
       users: "user",
       comments: "comment",
+      topics: "topic"
     };
 
 
