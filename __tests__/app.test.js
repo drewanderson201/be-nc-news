@@ -497,7 +497,7 @@ describe("/api", () => {
     });
   });
 
-  describe.only("GET /api/articles/:article_id (comment_count)", () => {
+  describe("GET /api/articles/:article_id (comment_count)", () => {
     test("GET 200: sends single article based on article id including a comment count when comment count is greater than zero", () => {
       return request(app)
         .get("/api/articles/1")

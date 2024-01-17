@@ -31,8 +31,6 @@ exports.retrieveAllArticles = (topicQuery) => {
 
         queryStr += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC`;
 
-        console.log("queryStr >> ", queryStr);
-
         return db.query(queryStr, queryValues).then((result)=>{
           return result.rows
         })
