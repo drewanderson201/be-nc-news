@@ -18,23 +18,55 @@ exports.retrieveArticleById = (articleId) => {
     });
 }
 
-exports.retrieveAllArticles = (topicQuery) => {
-  
-  const queryValues = []
+exports.retrieveAllArticles = (
+  topicQuery,
+  sortByQuery = "created_at",
+  orderByQuery = "DESC"
+) => {
+  const queryValues = [];
+  const validSortByQueries = [
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
 
-  let queryStr = `SELECT articles.article_id, articles.author, articles.title,articles.topic,articles.created_at,articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id`
+  if (!validSortByQueries.includes(sortByQuery)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Invalid sort query",
+    });
+  }
 
-        if (topicQuery) {
-          queryStr += ` WHERE topic = $1`
-          queryValues.push(topicQuery)
-        }
+  const validOrderByQueries = [
+    "asc",
+    "ASC",
+    "desc",
+    "DESC"
+  ];
 
-        queryStr += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC`;
+    if (!validOrderByQueries.includes(orderByQuery)) {
+      return Promise.reject({
+        status: 400,
+        msg: "Invalid order by query",
+      });
+    }
 
-        return db.query(queryStr, queryValues).then((result)=>{
-          return result.rows
-        })
+  let queryStr = `SELECT articles.article_id, articles.author, articles.title,articles.topic,articles.created_at,articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
+  if (topicQuery) {
+    queryStr += ` WHERE topic = $1`;
+    queryValues.push(topicQuery);
+  }
+
+  queryStr += ` GROUP BY articles.article_id ORDER BY ${sortByQuery} ${orderByQuery}`;
+
+  return db.query(queryStr, queryValues).then((result) => {
+    return result.rows;
+  });
 };
 
 exports.updateArticle = (articleUpdates, articleId) => {

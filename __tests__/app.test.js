@@ -528,4 +528,110 @@ describe("/api", () => {
         });
     });
   });
+
+  describe("GET /api/articles?sort_by=sort_by_query", () => {
+    test("GET 200: should be sorted in date descending order by default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+
+    test("GET 200: can be sorted by any valid column by passing a sort by query parameter", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("author", {
+            descending: true,
+          });
+        });
+    });
+
+    test("GET 200: can be sorted by any valid column by passing a sort by query parameter", () => {
+      return request(app)
+        .get("/api/articles?sort_by=comment_count")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("comment_count", {
+            descending: true,
+            coerce: true,
+          });
+        });
+    });
+
+    test("GET 400: will respond with error message when given an invalid sort by query parameter", () => {
+      return request(app)
+        .get("/api/articles?sort_by=nonsense")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Invalid sort query");
+        });
+    });
+  });
+
+  describe("GET /api/articles?order_by=order_by_query", () => {
+    test("GET 200: can be sorted by date in ascending order by passing order by query parameter of asc", () => {
+      return request(app)
+        .get("/api/articles?order_by=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", {
+            descending: false,
+          });
+        });
+    });
+
+    test("GET 200: can be sorted by date in descending order by passing order by query parameter of desc", () => {
+      return request(app)
+        .get("/api/articles?order_by=desc")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+
+    test("GET 200: can be sorted by date in ascending order by passing order by query parameter of ASC", () => {
+      return request(app)
+        .get("/api/articles?order_by=ASC")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("created_at", {
+            descending: false,
+          });
+        });
+    });
+
+    test("GET 400:  will respond with error message when given an invalid order by query parameter", () => {
+      return request(app)
+        .get("/api/articles?order_by=rubbish")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Invalid order by query");
+        });
+    });
+
+    test("GET 200: can be pass both a sort by and order by query and return the expect result", () => {
+      return request(app)
+        .get("/api/articles?sort_by=comment_count&order_by=ASC")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy("comment_count", {
+            descending: false,
+            coerce: true,
+          });
+        });
+    });
+  });
 });
