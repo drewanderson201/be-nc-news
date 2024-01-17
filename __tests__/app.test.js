@@ -433,67 +433,99 @@ describe("/api", () => {
         });
     });
   });
-});
 
-describe("GET /articles?topic=topic_query", () => {
-  test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there is a single article for that topic", () => {
-    return request(app)
-      .get("/api/articles?topic=cats")
-      .expect(200)
-      .then(({ body }) => {
-        const { articles } = body;
-        expect(articles.length).toBe(1);
-        articles.forEach((article) => {
-          expect(typeof article.article_id).toBe("number");
-          expect(typeof article.author).toBe("string");
-          expect(typeof article.title).toBe("string");
-          expect(typeof article.topic).toBe("string");
-          expect(typeof article.created_at).toBe("string");
-          expect(typeof article.votes).toBe("number");
-          expect(typeof article.article_img_url).toBe("string");
-          expect(article.body).toBe(undefined);
+  describe("GET /articles?topic=topic_query", () => {
+    test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there is a single article for that topic", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBe(1);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
         });
-      });
-  });
+    });
 
-  test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there are multiple articles for that topic", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch")
-      .expect(200)
-      .then(({ body }) => {
-        const { articles } = body;
-        expect(articles.length).toBe(12);
-        articles.forEach((article) => {
-          expect(typeof article.article_id).toBe("number");
-          expect(typeof article.author).toBe("string");
-          expect(typeof article.title).toBe("string");
-          expect(typeof article.topic).toBe("string");
-          expect(typeof article.created_at).toBe("string");
-          expect(typeof article.votes).toBe("number");
-          expect(typeof article.article_img_url).toBe("string");
-          expect(article.body).toBe(undefined);
+    test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there are multiple articles for that topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBe(12);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
         });
-      });
-  });
+    });
 
-  test("GET 404: Will respond with error message if given an non-existent topic as a query parameter", () => {
-    return request(app)
-      .get("/api/articles?topic=nonsense")
-      .expect(404)
-      .then((response) => {
-        expect(response.body.msg).toBe("topic does not exist");
-      });
-  });
+    test("GET 404: Will respond with error message if given an non-existent topic as a query parameter", () => {
+      return request(app)
+        .get("/api/articles?topic=nonsense")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("topic does not exist");
+        });
+    });
 
     test("GET 200: Will respond with empty array if given a valid topic which has not articles associated with it", () => {
       return request(app)
         .get("/api/articles?topic=paper")
         .expect(200)
-        .then(({body}) => {
-          const {articles} = body
+        .then(({ body }) => {
+          const { articles } = body;
           expect(articles).toEqual([]);
         });
     });
+  });
 
+  describe.only("GET /api/articles/:article_id (comment_count)", () => {
+    test("GET 200: sends single article based on article id including a comment count when comment count is greater than zero", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.article_id).toBe(1);
+          expect(article.title).toBe("Living in the shadow of a great man");
+          expect(article.topic).toBe("mitch");
+          expect(article.author).toBe("butter_bridge");
+          expect(article.body).toBe("I find this existence challenging");
+          expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+          expect(article.votes).toBe(100);
+          expect(article.article_img_url).toBe(
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+          );
+          expect(article.comment_count).toBe(11);
+        });
+    });
 
+    test("GET 200: sends single article based on article id including a comment count when comment count is equal to zero", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.comment_count).toBe(0);
+        });
+    });
+  });
 });

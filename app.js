@@ -47,10 +47,6 @@ app.delete("/api/comments/:comment_id", deleteComment);
 
 app.get("/api/users", getUsers);
 
-
-
-
-
 //should come after all other endpoints
 app.all("/*", handleInvalidEndpoint);
 
