@@ -1,3 +1,4 @@
+const { Query } = require("pg");
 const db = require("../db/connection");
 
 exports.retrieveArticleById = (articleId) => {
@@ -13,21 +14,24 @@ exports.retrieveArticleById = (articleId) => {
         });
 }
 
-exports.retreiveAllArticles = () => {
+exports.retrieveAllArticles = (topicQuery) => {
+  
+  const queryValues = []
 
-    return db
-      .query(
-        `SELECT articles.article_id, articles.author, articles.title,articles.topic,articles.created_at,articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count
-        FROM articles
-        LEFT JOIN comments ON comments.article_id = articles.article_id
-        GROUP BY articles.article_id
-        ORDER BY articles.created_at DESC;`
-      )
-      .then((result) => {
-        return result.rows;
-      });
+  let queryStr = `SELECT articles.article_id, articles.author, articles.title,articles.topic,articles.created_at,articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id`
 
-}
+        if (topicQuery) {
+          queryStr += ` WHERE topic = $1`
+          queryValues.push(topicQuery)
+        }
+
+        queryStr += ` GROUP BY articles.article_id ORDER BY articles.created_at DESC`;
+
+        return db.query(queryStr, queryValues).then((result)=>{
+          return result.rows
+        })
+
+};
 
 exports.updateArticle = (articleUpdates, articleId) => {
   return db

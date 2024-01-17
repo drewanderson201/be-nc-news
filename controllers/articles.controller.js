@@ -2,7 +2,7 @@
 
 const {
   retrieveArticleById,
-  retreiveAllArticles,
+  retrieveAllArticles,
   updateArticle
 } = require("../models/articles.model");
 
@@ -24,13 +24,26 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 
-    retreiveAllArticles().then((articles)=>{
+  const topicQuery = req.query.topic
+
+
+  const getArticlesQuery = retrieveAllArticles(topicQuery)
+  const queries = [getArticlesQuery]
+
+  if(topicQuery){
+      const topicExistenceQuery = checkExistsInDb("topics", "slug", topicQuery);
+      queries.push(topicExistenceQuery);
+  }
+
+    Promise.all(queries)
+      .then((response) => {
+        const articles = response[0];
 
         res.status(200).send({ articles });
-
-
-
-    })
+      })
+      .catch((err) => {
+        next(err);
+      });
 
 };
 

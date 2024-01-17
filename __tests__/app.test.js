@@ -398,7 +398,6 @@ describe("/api", () => {
       return request(app).delete("/api/comments/1").expect(204);
     });
 
-
     test("DELETE 400: will respond with error message if given an invalid comment id", () => {
       return request(app)
         .delete("/api/comments/nonsense")
@@ -408,16 +407,14 @@ describe("/api", () => {
         });
     });
 
-        test("DELETE 404: will respond with error message if given a valid but non existent comment id", () => {
-          return request(app)
-            .delete("/api/comments/100")
-            .expect(404)
-            .then((response) => {
-              expect(response.body.msg).toBe("comment does not exist");
-            });
+    test("DELETE 404: will respond with error message if given a valid but non existent comment id", () => {
+      return request(app)
+        .delete("/api/comments/100")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("comment does not exist");
         });
-
-
+    });
   });
 
   describe("GET /api/users", () => {
@@ -436,4 +433,67 @@ describe("/api", () => {
         });
     });
   });
+});
+
+describe("GET /articles?topic=topic_query", () => {
+  test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there is a single article for that topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(1);
+        articles.forEach((article) => {
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(article.body).toBe(undefined);
+        });
+      });
+  });
+
+  test("GET 200: Will accept a query parameter of topic and return all the articles for that topic when there are multiple articles for that topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.length).toBe(12);
+        articles.forEach((article) => {
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(article.body).toBe(undefined);
+        });
+      });
+  });
+
+  test("GET 404: Will respond with error message if given an non-existent topic as a query parameter", () => {
+    return request(app)
+      .get("/api/articles?topic=nonsense")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("topic does not exist");
+      });
+  });
+
+    test("GET 200: Will respond with empty array if given a valid topic which has not articles associated with it", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({body}) => {
+          const {articles} = body
+          expect(articles).toEqual([]);
+        });
+    });
+
+
 });
