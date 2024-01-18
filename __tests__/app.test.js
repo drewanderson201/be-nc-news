@@ -634,4 +634,30 @@ describe("/api", () => {
         });
     });
   });
+
+  describe("GET /api/users/:username", () => {
+    test("GET 200: sends a single user based on username parameter", () => {
+      return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+          const { user } = body;
+          expect(user).toEqual({
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          });
+        });
+    });
+
+    test("GET 404: sends appropriate error message when given a valid but non existent username", () => {
+            return request(app)
+              .get("/api/users/not_a_name")
+              .expect(404)
+              .then((response) => {
+                expect(response.body.msg).toBe("username does not exist");
+              });
+    });
+  });
 });
