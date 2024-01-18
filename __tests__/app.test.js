@@ -652,12 +652,98 @@ describe("/api", () => {
     });
 
     test("GET 404: sends appropriate error message when given a valid but non existent username", () => {
-            return request(app)
-              .get("/api/users/not_a_name")
-              .expect(404)
-              .then((response) => {
-                expect(response.body.msg).toBe("username does not exist");
-              });
+      return request(app)
+        .get("/api/users/not_a_name")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("username does not exist");
+        });
+    });
+  });
+
+  describe("PATCH /api/comments/:comment_id", () => {
+    test("PATCH 200: Updates the comment vote count based on comment id and positive increment value", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then(({ body }) => {
+          const comment = body.comment;
+          expect(comment).toEqual({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            created_at: "2020-04-06T12:17:00.000Z",
+            votes: 17,
+            author: "butter_bridge",
+            article_id: 9,
+          });
+        });
+    });
+
+    test("PATCH 200: Updates the comment vote count based on comment id and negative increment value", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: -1 })
+        .expect(200)
+        .then(({ body }) => {
+          const comment = body.comment;
+          expect(comment).toEqual({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            created_at: "2020-04-06T12:17:00.000Z",
+            votes: 15,
+            author: "butter_bridge",
+            article_id: 9,
+          });
+        });
+    });
+
+    test("PATCH 200: Will return comment vote count of zero if provided a decrement value greater than current vote count", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: -20 })
+        .expect(200)
+        .then(({ body }) => {
+          const comment = body.comment;
+          expect(comment).toEqual({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            created_at: "2020-04-06T12:17:00.000Z",
+            votes: 0,
+            author: "butter_bridge",
+            article_id: 9,
+          });
+        });
+    });
+
+    test("PATCH 400: will respond with error message if vote update value is wrong data type", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "nonsense" })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("PATCH 400: will respond with error message if given invalid value of comment id", () => {
+      return request(app)
+        .patch("/api/comments/nonsense")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("PATCH 404: will respond with error message if given a valid but non existent value of comment id", () => {
+      return request(app)
+        .patch("/api/comments/300")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("comment does not exist");
+        });
     });
   });
 });
