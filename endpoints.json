@@ -45,12 +45,14 @@
     "requestFormat": {},
     "exampleResponse": {
       "article": {
+        "article_id": 1,
         "title": "Seafood substitutions are increasing",
         "topic": "cooking",
         "author": "weegembump",
         "body": "Text from the article..",
         "created_at": "2018-05-30T15:59:13.341Z",
         "votes": 0,
+        "article_img_url": "www.imageofpaper.com",
         "comment_count": 6
       }
     }
@@ -123,11 +125,68 @@
     "queries": [],
     "requestFormat": {},
     "exampleResponse": {
-      "users": [{
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+
+  "GET /api/users/:username": {
+    "description": "servers a user based on username",
+    "queries": [],
+    "requestFormat": {},
+    "exampleResponse": {
+      "user": {
         "username": "butter_bridge",
         "name": "jonny",
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-      }]
+      }
+    }
+  },
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates a comment based on comment id",
+    "queries": [],
+    "requestFormat": {
+      "inc_votes": 1
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 5,
+        "body": "I hate streaming noses",
+        "article_id": 1,
+        "author": "icellusedkars",
+        "votes": 0,
+        "created_at": "2020-11-03T21:00:00.000Z"
+      }
+    }
+  },
+  "POST /api/articles": {
+    "description": "adds a new article",
+    "queries": [],
+    "requestFormat": {
+      "author": "rogersop",
+      "title": "article about paper",
+      "body": "paper is so great",
+      "topic": "paper",
+      "article_img_url": "www.imageofpaper.com"
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 5,
+        "title": "Seafood substitutions are increasing",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0,
+        "article_img_url": "www.imageofpaper.com",
+        "comment_count": 0
+      }
     }
   }
 }
