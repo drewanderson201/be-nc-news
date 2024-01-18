@@ -2,6 +2,7 @@ const {
   retrieveCommentsByArticleId,
   addComment,
   removeComment,
+  updateComment,
 } = require("../models/comments.model");
 
 const { checkExistsInDb } = require("../models/check-exists.model");
@@ -73,4 +74,25 @@ exports.deleteComment = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.patchComment = (req, res, next) => {
+  const commentId = req.params.comment_id
+  const commentUpdates = req.body
+
+
+  const commentExistenceQuery = checkExistsInDb(
+    "comments",
+    "comment_id",
+    commentId
+  );
+
+  const updateCommentQuery = updateComment(commentUpdates, commentId);
+
+  Promise.all([updateCommentQuery, commentExistenceQuery]).then((response)=>{
+    const comment = response[0]
+    res.status(200).send({ comment });
+  }).catch((err)=>{
+    next(err)
+  })
 };

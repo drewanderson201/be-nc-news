@@ -49,3 +49,21 @@ exports.removeComment = (commentId) => {
         return rows[0];
       });
 }
+
+exports.updateComment = (commentUpdates, commentId) => {
+
+
+ return db
+   .query(
+     `
+  UPDATE comments
+  SET votes = GREATEST(0,votes + $1)
+  WHERE comment_id = $2
+  RETURNING *`,
+     [commentUpdates.inc_votes, commentId]
+   )
+   .then(({ rows }) => {
+     return rows[0];
+   });
+
+};
