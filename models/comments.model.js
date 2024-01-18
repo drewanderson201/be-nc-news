@@ -30,8 +30,6 @@ exports.addComment = (newComment, articleId) => {
     return rows[0]
   });
 
-
-
 };
 
 exports.removeComment = (commentId) => {

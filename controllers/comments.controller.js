@@ -35,8 +35,6 @@ exports.postComment = (req, res, next) => {
   const articleId = req.params.article_id;
   const newComment = req.body;
 
-
-
   const articleExistenceQuery = checkExistsInDb(
     "articles",
     "article_id",
