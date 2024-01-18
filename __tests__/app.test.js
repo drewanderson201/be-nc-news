@@ -746,4 +746,114 @@ describe("/api", () => {
         });
     });
   });
+
+  describe("POST /api/articles", () => {
+    test("POST 201: adds a new article if request contains all properties", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "rogersop",
+          title: "article about paper",
+          body: "paper is so great",
+          topic: "paper",
+          article_img_url: "www.imageofpaper.com",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article.article_id).toBe(14);
+          expect(article.author).toBe("rogersop");
+          expect(article.title).toBe("article about paper");
+          expect(article.body).toBe("paper is so great");
+          expect(article.topic).toBe("paper");
+          expect(article.article_img_url).toBe("www.imageofpaper.com");
+          expect(article.votes).toBe(0);
+          expect(typeof article.created_at).toBe("string");
+          expect(article.comment_count).toBe(0);
+        });
+    });
+
+    test("POST 201: adds a new article if request only contains mandatory properties", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "rogersop",
+          title: "article about paper",
+          body: "paper is so great",
+          topic: "paper",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article.article_id).toBe(14);
+          expect(article.author).toBe("rogersop");
+          expect(article.title).toBe("article about paper");
+          expect(article.body).toBe("paper is so great");
+          expect(article.topic).toBe("paper");
+          expect(article.article_img_url).toBe(
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+          );
+          expect(article.votes).toBe(0);
+          expect(typeof article.created_at).toBe("string");
+          expect(article.comment_count).toBe(0);
+        });
+    });
+
+    test("POST 400: will respond with error message if body is missing mandatory keys", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "article about paper",
+          body: "paper is so great",
+          topic: "paper",
+          article_img_url: "www.imageofpaper.com",
+        })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 400: will respond with error message if no request body is sent", () => {
+      return request(app)
+        .post("/api/articles")
+        .send()
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 404: will respond with error message if request includes a username that doesn't exist", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "new username",
+          title: "article about paper",
+          body: "paper is so great",
+          topic: "paper",
+          article_img_url: "www.imageofpaper.com",
+        })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Resource not found");
+        });
+    });
+
+        test("POST 404: will respond with error message if request includes a topic that doesn't exist", () => {
+          return request(app)
+            .post("/api/articles")
+            .send({
+              author: "rogersop",
+              title: "article about paper",
+              body: "paper is so great",
+              topic: "new topic",
+              article_img_url: "www.imageofpaper.com",
+            })
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Resource not found");
+            });
+        });
+  });
 });

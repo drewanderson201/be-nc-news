@@ -83,3 +83,68 @@ exports.updateArticle = (articleUpdates, articleId) => {
       return rows[0];
     });
 };
+
+exports.addArticle = (newArticle) => {
+
+  const queries = [
+    newArticle.author,
+    newArticle.title,
+    newArticle.body,
+    newArticle.topic,
+  ];
+    let queryStr = `
+  INSERT INTO articles
+  (author, title, body, topic`
+
+  if (newArticle.article_img_url !== undefined){
+    queryStr += `, article_img_url`
+    queries.push(newArticle.article_img_url);
+  }
+
+  queryStr += `)
+  VALUES
+  ($1, $2, $3, $4`
+
+    if (newArticle.article_img_url !== undefined){
+    queryStr += `, $5`
+  }
+
+  queryStr += `)
+  RETURNING *`
+
+    
+ 
+    return db
+      .query(queryStr, queries
+  //       `
+  // INSERT INTO articles
+  // (author, title, body, topic, article_img_url)
+  // VALUES
+  // ($1, $2, $3, $4, $5)
+  // RETURNING *`,
+  //       [
+  //         newArticle.author,
+  //         newArticle.title,
+  //         newArticle.body,
+  //         newArticle.topic,
+  //         newArticle.article_img_url,
+  //       ]
+      )
+      .then(({ rows }) => {
+        const newArticle = rows[0];
+        const newArticleId = newArticle.article_id;
+        const getCommentCountQuery = db.query(
+          `SELECT COUNT(comments.article_id) AS comment_count FROM comments WHERE comments.article_id = $1`,
+          [newArticleId]
+        );
+        return Promise.all([newArticle, getCommentCountQuery]);
+      })
+      .then((response) => {
+        const newArticle = response[0];
+        const newArticleCommentCount = Number(
+          response[1].rows[0].comment_count
+        );
+        newArticle.comment_count = newArticleCommentCount;
+        return newArticle;
+      });
+}

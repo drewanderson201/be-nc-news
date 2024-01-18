@@ -3,7 +3,8 @@
 const {
   retrieveArticleById,
   retrieveAllArticles,
-  updateArticle
+  updateArticle,
+  addArticle,
 } = require("../models/articles.model");
 
 const {checkExistsInDb} = require("../models/check-exists.model")
@@ -78,3 +79,13 @@ exports.patchArticle = (req, res, next) => {
       next(err);
     });
 };
+
+exports.postArticle = (req, res, next) => {
+  const newArticle = req.body
+  addArticle(newArticle)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err)});
+}
