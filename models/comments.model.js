@@ -4,6 +4,7 @@ const db = require("../db/connection");
 
 exports.retrieveCommentsByArticleId = (articleId) => {
 
+
     return db.query(
       `
     SELECT * FROM comments

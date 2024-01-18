@@ -7,8 +7,10 @@ const {
 const { checkExistsInDb } = require("../models/check-exists.model");
 const { response } = require("../app");
 
+
 exports.getCommentsByArticleId = (req, res, next) => {
   const articleId = req.params.article_id;
+
 
   const articleExistenceQuery = checkExistsInDb(
     "articles",
@@ -32,6 +34,8 @@ exports.postComment = (req, res, next) => {
   const articleId = req.params.article_id;
   const newComment = req.body;
 
+
+
   const articleExistenceQuery = checkExistsInDb(
     "articles",
     "article_id",
@@ -52,6 +56,7 @@ exports.postComment = (req, res, next) => {
 
 exports.deleteComment = (req, res, next) => {
   const commentId = req.params.comment_id;
+
 
   const commentExistenceQuery = checkExistsInDb(
     "comments",

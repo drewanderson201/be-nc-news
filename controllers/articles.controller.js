@@ -24,6 +24,7 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 
+
   const topicQuery = req.query.topic
   const sortByQuery = req.query.sort_by
   const orderByQuery = req.query.order_by;
