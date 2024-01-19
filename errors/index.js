@@ -11,6 +11,8 @@ exports.handlePsqlErrors = (err, req, res, next) => {
     res.status(400).send({ msg: "Bad request" });
   } else if (err.code === "23503") {
     res.status(404).send({ msg: "Resource not found" });
+  } else if (err.code === "23505") {
+    res.status(409).send({ msg: "Resource already exists" });
   } else {
     next(err);
   }

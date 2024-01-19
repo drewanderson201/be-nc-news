@@ -59,7 +59,7 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of all comments for an article id",
-    "queries": ["limit","p"],
+    "queries": ["limit", "p"],
     "requestFormat": {},
     "exampleResponse": {
       "comments": [
@@ -187,6 +187,17 @@
         "article_img_url": "www.imageofpaper.com",
         "comment_count": 0
       }
+    }
+  },
+  "POST /api/topics": {
+    "description": "adds a new topic",
+    "queries": [],
+    "requestFormat": {
+      "slug": "topic name here",
+      "description": "description here"
+    },
+    "exampleResponse": {
+      "topic": { "slug": "football", "description": "Footie!" }
     }
   }
 }

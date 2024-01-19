@@ -1,4 +1,4 @@
-const {retrieveTopics} = require("../models/topics.model")
+const { retrieveTopics, addTopic} = require("../models/topics.model");
 
 exports.getTopics = (req, res, next) => {
 
@@ -10,5 +10,18 @@ exports.getTopics = (req, res, next) => {
     }).catch((err)=>{
         next(err)
     })
+}
+
+exports.postTopic = (req, res, next) => {
+
+    const newTopic = req.body
+
+    addTopic(newTopic).then((response)=>{
+        const topic = response
+        res.status(201).send({topic})
+    }).catch((err)=>{
+        next(err)
+    })
+
 }
 

@@ -1091,13 +1091,80 @@ describe("/api", () => {
         });
     });
 
-        test("GET 400:  will respond with error message when given an invalid page query parameter", () => {
-          return request(app)
-            .get("/api/articles/1/comments?p=three")
-            .expect(400)
-            .then((response) => {
-              expect(response.body.msg).toBe("Bad request");
-            });
+    test("GET 400:  will respond with error message when given an invalid page query parameter", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=three")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
         });
+    });
+  });
+
+  describe("POST /api/topics", () => {
+    test("POST 201: adds a new topic", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "New Topic A",
+          description: "Posting a brand new topic for testing",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const topic = body.topic;
+          expect(topic.slug).toBe("New Topic A");
+          expect(topic.description).toBe(
+            "Posting a brand new topic for testing"
+          );
+        });
+    });
+
+    test("POST 201: adds a new topic if minimum required fields are present in the request", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "New Topic B",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const topic = body.topic;
+          expect(topic.slug).toBe("New Topic B");
+          expect(topic.description).toBe(null);
+        });
+    });
+
+    test("POST 400: will respond with error message if body is missing mandatory keys", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          description: "Posting a brand new topic for testing",
+        })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 400: will respond with error message if no body is sent in request", () => {
+      return request(app)
+        .post("/api/topics")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("POST 400: will respond with error message if topic slug already exists", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "cats",
+          description: "Not dogs",
+        })
+        .expect(409)
+        .then((response) => {
+          expect(response.body.msg).toBe("Resource already exists");
+        });
+    });
   });
 });
