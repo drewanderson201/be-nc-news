@@ -199,5 +199,11 @@
     "exampleResponse": {
       "topic": { "slug": "football", "description": "Footie!" }
     }
+  },
+  "DELETE /api/artilces/:article_id": {
+    "description": "deletes an article and all the associated comments based on article id",
+    "queries": [],
+    "requestFormat": {},
+    "exampleResponse": {}
   }
 }

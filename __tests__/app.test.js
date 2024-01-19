@@ -1167,4 +1167,32 @@ describe("/api", () => {
         });
     });
   });
+
+  describe("DELETE /api/articles/:article_id", () => {
+    test("DELETE 204: Removes an article based on article id and deletes article comments and responds with correct status code", () => {
+      return request(app).delete("/api/articles/1").expect(204);
+    });
+
+      test("DELETE 204: Removes an article based on article id when article has no comments and responds with correct status code", () => {
+        return request(app).delete("/api/articles/2").expect(204);
+      });
+
+    test("DELETE 400: will respond with error message if given an invalid article id", () => {
+      return request(app)
+        .delete("/api/articles/nonsense")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("DELETE 404: will respond with error message if given a valid but non existent article id", () => {
+      return request(app)
+        .delete("/api/articles/100")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("article does not exist");
+        });
+    });
+  });
 });
