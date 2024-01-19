@@ -1173,9 +1173,9 @@ describe("/api", () => {
       return request(app).delete("/api/articles/1").expect(204);
     });
 
-      test("DELETE 204: Removes an article based on article id when article has no comments and responds with correct status code", () => {
-        return request(app).delete("/api/articles/2").expect(204);
-      });
+    test("DELETE 204: Removes an article based on article id when article has no comments and responds with correct status code", () => {
+      return request(app).delete("/api/articles/2").expect(204);
+    });
 
     test("DELETE 400: will respond with error message if given an invalid article id", () => {
       return request(app)
@@ -1192,6 +1192,70 @@ describe("/api", () => {
         .expect(404)
         .then((response) => {
           expect(response.body.msg).toBe("article does not exist");
+        });
+    });
+  });
+
+  describe("GET /articles?author=author_query", () => {
+    test("GET 200: Will accept a query parameter of author and return all the articles for that author", () => {
+      return request(app)
+        .get("/api/articles?author=butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBe(4);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+    test("GET 200: Will accept a query parameter of author and topic and return all the articles for that author", () => {
+      return request(app)
+        .get("/api/articles?author=rogersop&topic=cats")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles.length).toBe(1);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+
+    test("GET 404: Will respond with error message if given an non-existent author as a query parameter", () => {
+      return request(app)
+        .get("/api/articles?author=nonsense")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("user does not exist");
+        });
+    });
+
+    test("GET 200: Will respond with empty array if given a valid author which has not articles associated with them", () => {
+      return request(app)
+        .get("/api/articles?author=lurker")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toEqual([]);
         });
     });
   });

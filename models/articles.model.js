@@ -20,6 +20,7 @@ exports.retrieveArticleById = (articleId) => {
 
 exports.retrieveAllArticles = (
   topicQuery,
+  authorQuery,
   sortByQuery = "created_at",
   orderByQuery = "DESC",
   limitQuery = 10,
@@ -66,6 +67,20 @@ exports.retrieveAllArticles = (
     queryValuesTotalCount.push(topicQuery);
   }
 
+  if (authorQuery) {
+    if (queryValues.length) {
+      queryStr += ` AND`;
+      totalCountQueryStr += ` AND`;
+    } else {
+      queryStr += ` WHERE`;
+      totalCountQueryStr += ` WHERE`;
+    }
+    queryValues.push(authorQuery);
+    queryValuesTotalCount.push(authorQuery);
+    queryStr += ` articles.author = $${queryValues.length}`;
+    totalCountQueryStr += ` articles.author = $${queryValues.length}`;
+  }
+
   const totalCountQuery = db.query(totalCountQueryStr, queryValuesTotalCount);
 
   queryValues.push(limitQuery);
@@ -74,6 +89,10 @@ exports.retrieveAllArticles = (
   queryStr += ` GROUP BY articles.article_id ORDER BY ${sortByQuery} ${orderByQuery} LIMIT $${
     queryValues.length - 1
   } OFFSET $${queryValues.length}`;
+
+ 
+
+
 
   const retrieveAllArticlesQuery = db.query(queryStr, queryValues);
 
@@ -133,19 +152,6 @@ exports.addArticle = (newArticle) => {
     .query(
       queryStr,
       queries
-      //       `
-      // INSERT INTO articles
-      // (author, title, body, topic, article_img_url)
-      // VALUES
-      // ($1, $2, $3, $4, $5)
-      // RETURNING *`,
-      //       [
-      //         newArticle.author,
-      //         newArticle.title,
-      //         newArticle.body,
-      //         newArticle.topic,
-      //         newArticle.article_img_url,
-      //       ]
     )
     .then(({ rows }) => {
       const newArticle = rows[0];

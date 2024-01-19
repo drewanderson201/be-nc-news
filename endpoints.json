@@ -23,7 +23,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["topic", "sort_by", "order_by", "limit", "p"],
+    "queries": ["topic", "author", "sort_by", "order_by", "limit", "p"],
     "requestFormat": {},
     "exampleResponse": {
       "articles": [
