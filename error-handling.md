@@ -18,9 +18,11 @@ The following is _not_ a comprehensive list! Its purpose is just to get the ball
 - 204 No Content
 - 400 Bad Request
 - 404 Not Found
+
 - 405 Method Not Allowed
 - 418 I'm a teapot
 - 422 Unprocessable Entity
+
 - 500 Internal Server Error
 
 ---
