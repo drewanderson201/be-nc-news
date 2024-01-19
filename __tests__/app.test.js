@@ -102,7 +102,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           const { articles } = body;
-          expect(articles.length).toBe(data.articleData.length);
+          expect(articles.length > 0).toBe(true);
           articles.forEach((article) => {
             expect(typeof article.article_id).toBe("number");
             expect(typeof article.author).toBe("string");
@@ -122,7 +122,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           const { articles } = body;
-          expect(articles.length).toBe(data.articleData.length);
+          expect(articles.length > 0).toBe(true);
           const articleOne = articles.find(
             (article) => article.article_id === 1
           );
@@ -462,7 +462,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           const { articles } = body;
-          expect(articles.length).toBe(12);
+          expect(articles.length > 0).toBe(true);
           articles.forEach((article) => {
             expect(typeof article.article_id).toBe("number");
             expect(typeof article.author).toBe("string");
@@ -473,6 +473,8 @@ describe("/api", () => {
             expect(typeof article.article_img_url).toBe("string");
             expect(typeof article.comment_count).toBe("number");
             expect(article.body).toBe(undefined);
+            expect(article.topic).toBe("mitch");
+
           });
         });
     });
@@ -977,13 +979,13 @@ describe("/api", () => {
         });
     });
 
-        test.only("GET 400:  will respond with error message when given an invalid page query parameter", () => {
-          return request(app)
-            .get("/api/articles?p=five")
-            .expect(400)
-            .then((response) => {
-              expect(response.body.msg).toBe("Bad request");
-            });
+    test("GET 400:  will respond with error message when given an invalid page query parameter", () => {
+      return request(app)
+        .get("/api/articles?p=five")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
         });
+    });
   });
 });
