@@ -82,7 +82,6 @@ exports.retrieveAllArticles = (
   const retrieveAllArticlesQuery = db.query(queryStr, queryValues);
 
   return Promise.all([retrieveAllArticlesQuery, totalCountQuery]).then((result) => {
-
     const articles = result[0].rows;
     const totalCount = Number(result[1].rows[0].count);
 

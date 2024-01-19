@@ -12,6 +12,10 @@ const { response } = require("../app");
 exports.getCommentsByArticleId = (req, res, next) => {
   const articleId = req.params.article_id;
 
+  const limitQuery = req.query.limit
+  const startPageQuery = req.query.p;
+
+
 
   const articleExistenceQuery = checkExistsInDb(
     "articles",
@@ -19,12 +23,15 @@ exports.getCommentsByArticleId = (req, res, next) => {
     articleId
   );
 
-  const retrieveCommentsQuery = retrieveCommentsByArticleId(articleId);
+  const retrieveCommentsQuery = retrieveCommentsByArticleId(
+    articleId,
+    limitQuery,
+    startPageQuery,
+  );
 
   Promise.all([retrieveCommentsQuery, articleExistenceQuery])
     .then((response) => {
-      const comments = response[0];
-      res.status(200).send({ comments });
+      res.status(200).send(response[0]);
     })
     .catch((err) => {
       next(err);

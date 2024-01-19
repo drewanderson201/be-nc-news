@@ -163,7 +163,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           const { comments } = body;
-          expect(comments.length).toBe(11);
+          expect(comments.length > 0).toBe(true);
           comments.forEach((comment) => {
             expect(typeof comment.comment_id).toBe("number");
             expect(typeof comment.body).toBe("string");
@@ -474,7 +474,6 @@ describe("/api", () => {
             expect(typeof article.comment_count).toBe("number");
             expect(article.body).toBe(undefined);
             expect(article.topic).toBe("mitch");
-
           });
         });
     });
@@ -987,5 +986,118 @@ describe("/api", () => {
           expect(response.body.msg).toBe("Bad request");
         });
     });
+  });
+
+  describe("GET /api/articles/:article_id/comments (pagination)", () => {
+    test("GET 200: Accepts a limit parameter and responds with the corresponding number of comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments, total_count } = body;
+          expect(total_count).toBe(11);
+          expect(comments.length).toBe(5);
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+    test("GET 200: Responds with all comments if limit parameter is greater than number of comments", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=20")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments, total_count } = body;
+          expect(total_count).toBe(11);
+          expect(comments.length).toBe(11);
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+
+    test("GET 200: Responds with a default of 10 comments if no limit query param is passed", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments, total_count } = body;
+          expect(total_count).toBe(11);
+          expect(comments.length).toBe(10);
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+
+    test("GET 400:  will respond with error message when given an invalid limit query parameter", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=one")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+    test("GET 200: Accepts a page parameter which specifies the page at which to start and responds with the corresponding number of articles ", () => {
+      return request(app)
+        .get("/api/articles/1/comments?p=1")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments, total_count } = body;
+          expect(total_count).toBe(11);
+          expect(comments.length).toBe(1);
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+
+    test("GET 200: Accepts a limit and page parameter which specifies the page at which to start and number of records and responds with the corresponding number of articles ", () => {
+      return request(app)
+        .get("/api/articles/1/comments?limit=2&p=1")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments, total_count } = body;
+          expect(total_count).toBe(11);
+          expect(comments.length).toBe(2);
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+        });
+    });
+
+        test("GET 400:  will respond with error message when given an invalid page query parameter", () => {
+          return request(app)
+            .get("/api/articles/1/comments?p=three")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad request");
+            });
+        });
   });
 });
