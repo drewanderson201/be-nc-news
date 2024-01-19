@@ -840,19 +840,149 @@ describe("/api", () => {
         });
     });
 
-        test("POST 404: will respond with error message if request includes a topic that doesn't exist", () => {
+    test("POST 404: will respond with error message if request includes a topic that doesn't exist", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "rogersop",
+          title: "article about paper",
+          body: "paper is so great",
+          topic: "new topic",
+          article_img_url: "www.imageofpaper.com",
+        })
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Resource not found");
+        });
+    });
+  });
+
+  describe("GET /api/articles (pagination)", () => {
+    test("GET 200: Accepts a limits parameter and responds with the corresponding number of articles", () => {
+      return request(app)
+        .get("/api/articles?limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles, total_count } = body;
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(5);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+    test("GET 200: returns all articles if limit parameter is greater than number of articles ", () => {
+      return request(app)
+        .get("/api/articles?limit=20")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles, total_count } = body;
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(13);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+    test("GET 200: defaults to 10 articles if no limit parameter is passed", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles, total_count } = body;
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(10);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+    test("GET 400:  will respond with error message when given an invalid limit query parameter", () => {
+      return request(app)
+        .get("/api/articles?limit=seven")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad request");
+        });
+    });
+
+    test("GET 200: Accepts a page parameter which specifies the page at which to start and responds with the corresponding number of articles ", () => {
+      return request(app)
+        .get("/api/articles?p=1")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles, total_count } = body;
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(3);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+    test("GET 200: Accepts both a limit and a page parameter and responds with the corresponding number of articles ", () => {
+      return request(app)
+        .get("/api/articles?p=1&limit=5")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles, total_count } = body;
+          expect(total_count).toBe(13);
+          expect(articles.length).toBe(5);
+          articles.forEach((article) => {
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+            expect(article.body).toBe(undefined);
+          });
+        });
+    });
+
+        test.only("GET 400:  will respond with error message when given an invalid page query parameter", () => {
           return request(app)
-            .post("/api/articles")
-            .send({
-              author: "rogersop",
-              title: "article about paper",
-              body: "paper is so great",
-              topic: "new topic",
-              article_img_url: "www.imageofpaper.com",
-            })
-            .expect(404)
+            .get("/api/articles?p=five")
+            .expect(400)
             .then((response) => {
-              expect(response.body.msg).toBe("Resource not found");
+              expect(response.body.msg).toBe("Bad request");
             });
         });
   });

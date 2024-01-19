@@ -21,9 +21,12 @@ exports.retrieveArticleById = (articleId) => {
 exports.retrieveAllArticles = (
   topicQuery,
   sortByQuery = "created_at",
-  orderByQuery = "DESC"
+  orderByQuery = "DESC",
+  limitQuery = 10,
+  startPageQuery = 0,
 ) => {
   const queryValues = [];
+  const queryValuesTotalCount = [];
   const validSortByQueries = [
     "title",
     "topic",
@@ -33,6 +36,8 @@ exports.retrieveAllArticles = (
     "votes",
     "comment_count",
   ];
+
+  const offset = limitQuery * startPageQuery
 
   if (!validSortByQueries.includes(sortByQuery)) {
     return Promise.reject({
@@ -57,15 +62,31 @@ exports.retrieveAllArticles = (
 
   let queryStr = `SELECT articles.article_id, articles.author, articles.title,articles.topic,articles.created_at,articles.votes, articles.article_img_url, COUNT(comments.comment_id)::INT AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
+  let totalCountQueryStr = `SELECT COUNT(articles.article_id) FROM articles`;
+
   if (topicQuery) {
     queryStr += ` WHERE topic = $1`;
+    totalCountQueryStr += ` WHERE topic = $1`;
     queryValues.push(topicQuery);
+    queryValuesTotalCount.push(topicQuery)
   }
 
-  queryStr += ` GROUP BY articles.article_id ORDER BY ${sortByQuery} ${orderByQuery}`;
+  const totalCountQuery = db.query(totalCountQueryStr, queryValuesTotalCount);
 
-  return db.query(queryStr, queryValues).then((result) => {
-    return result.rows;
+  queryValues.push(limitQuery);
+    queryValues.push(offset);
+
+
+  queryStr += ` GROUP BY articles.article_id ORDER BY ${sortByQuery} ${orderByQuery} LIMIT $${queryValues.length - 1} OFFSET $${queryValues.length}`;
+
+  const retrieveAllArticlesQuery = db.query(queryStr, queryValues);
+
+  return Promise.all([retrieveAllArticlesQuery, totalCountQuery]).then((result) => {
+
+    const articles = result[0].rows;
+    const totalCount = Number(result[1].rows[0].count);
+
+    return {"articles": articles, "total_count": totalCount};
   });
 };
 

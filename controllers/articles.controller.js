@@ -25,17 +25,18 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
 
-
   const topicQuery = req.query.topic
   const sortByQuery = req.query.sort_by
   const orderByQuery = req.query.order_by;
-
-
+  const limitQuery = req.query.limit
+  const startPageQuery = req.query.p;
 
   const getArticlesQuery = retrieveAllArticles(
     topicQuery,
     sortByQuery,
-    orderByQuery
+    orderByQuery,
+    limitQuery,
+    startPageQuery,
   );
   const queries = [getArticlesQuery]
 
@@ -46,9 +47,7 @@ exports.getArticles = (req, res, next) => {
 
     Promise.all(queries)
       .then((response) => {
-        const articles = response[0];
-
-        res.status(200).send({ articles });
+        res.status(200).send(response[0]);
       })
       .catch((err) => {
         next(err);
