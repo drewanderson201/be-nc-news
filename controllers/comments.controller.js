@@ -62,8 +62,6 @@ exports.postComment = (req, res, next) => {
 
 exports.deleteComment = (req, res, next) => {
   const commentId = req.params.comment_id;
-
-
   const commentExistenceQuery = checkExistsInDb(
     "comments",
     "comment_id",
