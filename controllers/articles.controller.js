@@ -22,6 +22,7 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getArticles = (req, res, next) => {
   const topicQuery = req.query.topic;
+  const authorQuery = req.query.author
   const sortByQuery = req.query.sort_by;
   const orderByQuery = req.query.order_by;
   const limitQuery = req.query.limit;
@@ -29,10 +30,11 @@ exports.getArticles = (req, res, next) => {
 
   const getArticlesQuery = retrieveAllArticles(
     topicQuery,
+    authorQuery,
     sortByQuery,
     orderByQuery,
     limitQuery,
-    startPageQuery
+    startPageQuery,
   );
   const queries = [getArticlesQuery];
 
@@ -40,6 +42,15 @@ exports.getArticles = (req, res, next) => {
     const topicExistenceQuery = checkExistsInDb("topics", "slug", topicQuery);
     queries.push(topicExistenceQuery);
   }
+
+    if (authorQuery) {
+      const authorExistenceQuery = checkExistsInDb(
+        "users",
+        "username",
+        authorQuery
+      );
+      queries.push(authorExistenceQuery);
+    }
 
   Promise.all(queries)
     .then((response) => {
