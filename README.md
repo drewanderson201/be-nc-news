@@ -14,12 +14,6 @@ If you wish to clone the repo and test for yourself see the below instructions:
 5. run "npm run seed"
 6. run "npm run test" to run the test suite
 
-Clear instructions of how to clone, install dependencies, seed local database, and run tests.
-Information about how to create the two .env files.
-The minimum versions of Node.js, and Postgres needed to run the project.
-
-You will need to create two .env files for your project:
-
 Dev Dependencies installed
 "husky": "^8.0.2", https://www.npmjs.com/package/husky
 "jest": "^27.5.1", https://www.npmjs.com/package/jest
