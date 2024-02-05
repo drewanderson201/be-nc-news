@@ -26,6 +26,7 @@ Dependencies installed
 "dotenv": "^16.3.1", https://www.npmjs.com/package/dotenv
 "express": "^4.18.2", https://www.npmjs.com/package/express
 "pg": "^8.7.3", https://www.npmjs.com/package/pg
+"cors": "^2.8.5", https://www.npmjs.com/package/cors
 
 Required
 Postgres 14.10
